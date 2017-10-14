@@ -1,10 +1,8 @@
 /*
 Standardizing authentication schemes in OpenDayLight Controller
-author : @shaktiks
+author : shaktiks
 Codes for hardware integration with Machine Learning model
 */
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "time.h"
@@ -13,7 +11,7 @@ Codes for hardware integration with Machine Learning model
 #include "unistd.h"
 #include <string.h>
 #include <fcntl.h>
-
+#define NUM_IMPRESSIONS 10
 int FingerTemplateLength=2000;
 struct timeval tv;
 
@@ -339,7 +337,7 @@ int CaptureAndMatch(void *device)
     long width = MFS100GetWidth();  
     long height = MFS100GetHeight();  
     int ret=0, score = 0;
-
+	
     unsigned char * FinalFrame1; 
     unsigned char * FinalFrame2; 
     unsigned char * BitmapData1; 
@@ -436,7 +434,8 @@ int captureImagesAndStore(void *device)
     long height = MFS100GetHeight();  
     int ret=0;
 	char dirName[20], * destnPath, temp[20], index[2];
-	
+	char letterM[] = "m";
+
 	unsigned char * FinalFrame; 
     unsigned char * BitmapData = NULL; 
     FinalFrame=(unsigned char*)malloc(width*height);
@@ -463,7 +462,7 @@ int captureImagesAndStore(void *device)
 
     printf("Capture starting...\n");
 
-	for(int i=0;i<10;i++){
+	for(int i=1;i<=NUM_IMPRESSIONS;i++){
 
 		printf("Capturing Image %d\n",i);
 		ret = MFS100AutoCapture(myCallback, 10000,60,FinalFrame,BitmapData,Iso_19794_2_Template1,&ISOTemplateLength1,Ansi_378_2004_Template1,&ANSITemplateLength1,&Quality1,&NFIQ1);
@@ -474,12 +473,16 @@ int captureImagesAndStore(void *device)
 		}
 	
 		strcpy(temp, dirName);
-		destnPath = strcat(temp,"/image");
+		destnPath = strcat(temp,"/");
 		_itoa(i,index,10);
+		destnPath = strcat(destnPath, letterM);
 		destnPath = strcat(destnPath, index);
 		destnPath = strcat(destnPath, ".tif");
 		
+
+
 		Img_Write_to_file(FinalFrame,destnPath,height,width);
+
 		printf("Image and ISO Template Saved for Image %d\n",i);
 	}    
                     
